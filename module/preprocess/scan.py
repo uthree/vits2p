@@ -23,7 +23,8 @@ def scan_cache(config):
         "phonemes": phonemes,
         "languages": languages,
         "n_fft": config.preprocess.n_fft,
-        "frame_size": config.preprocess.frame_size
+        "frame_size": config.preprocess.frame_size,
+        "sample_rate": config.preprocess.sample_rate
     }
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f)
