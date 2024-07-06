@@ -1,0 +1,77 @@
+{
+    "preprocess": {
+        "sample_rate": 48000,
+        "frame_size": 480,
+        "n_fft": 1920,
+        "spec_max_length": 1000,
+        "text_max_length": 100,
+        "cache_dir": "dataset_cache"
+    },
+    "trainer": {
+        "devices": "auto",
+        "max_epochs": 10000,
+        "precision": "bf16-mixed",
+        "log_every_n_steps": 50
+    },
+    "data_module": {
+        "metadata": "weights/metadata.json",
+        "cache_dir": "dataset_cache",
+        "batch_size": 16,
+        "num_workers": 16
+    },
+    "save": {
+        "interval": 400,
+        "models_dir": "weights"
+    },
+    "model": {
+        "generator": {
+            "n_vocab": 256,
+            "spec_channels": 961,
+            "segment_size": 32,
+            "inter_channels": 192,
+            "hidden_channels": 192,
+            "filter_channels": 768,
+            "n_heads": 2,
+            "n_layers": 6,
+            "n_layers_q": 16,
+            "n_flows": 4,
+            "kernel_size": 5,
+            "p_dropout": 0.0,
+            "speaker_cond_layer": 0,
+            "resblock": "1",
+            "resblock_kernel_sizes": [3, 7, 11],
+            "resblock_dilation_sizes": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
+            "sample_rate": 48000,
+            "frame_size": 480,
+            "upsample_rates": [12, 10, 2, 2],
+            "upsample_initial_channel": 512,
+            "upsample_kernel_sizes": [24, 20, 4, 4],
+            "mas_noise_scale": 0.01,
+            "mas_noise_scale_decay": 10e-06,
+            "use_transformer_flow": true,
+            "n_speakers": 1024,
+            "gin_channels": 192
+        },
+        "discriminator": {
+            "mpd": {
+                "periods": [1, 2, 3, 5, 7, 11, 17, 23, 31],
+                "channels": 32,
+                "channels_mul": 2,
+                "max_channels": 256,
+                "num_layers": 4
+            },
+            "mrd": {
+                "resolutions": [128, 256, 512],
+                "channels": 32,
+                "num_layers": 6
+            }
+        },
+        "duration_discriminator": {
+            "in_channels": 192,
+            "filter_channels": 256,
+            "kernel_size": 5,
+            "p_dropout": 0.0,
+            "gin_channels": 192
+        }
+    }
+}
