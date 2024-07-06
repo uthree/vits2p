@@ -1,21 +1,17 @@
 # VITS2P
 modified VITS2 for pitch manipulation and quality  
-ピッチ制御と品質向上のためのVITS改造
+ピッチ制御と品質向上のためのVITS改造  
 
-# References
+(現在JVSコーパスにのみ対応。)
+
+![](docs/images/architecture.png)
+# Features
 - VITS2
-    - https://arxiv.org/abs/2307.16430
-    - https://github.com/p0p4k/vits2_pytorch/
-    - https://github.com/daniilrobnikov/vits2
-- SAN
-    - https://arxiv.org/abs/2301.12811
-    - https://github.com/sony/bigvsan
-- NSF-HiFi-GAN
-    - https://arxiv.org/abs/1904.12088
-    - https://github.com/vtuber-plan/NSF-HiFiGAN
-- Multi-Resolution STFT Discriminator form UnivNet
-    - https://arxiv.org/abs/2106.07889
-    - https://github.com/rishikksh20/UnivNet-pytorch
+- NSF HiFi-GAN
+- SAN Discriminator
+- 48kHz
+- Multi-Resolution STFT Discriminator
+
 
 # Usage
 1. clone this repo.
@@ -49,3 +45,18 @@ tensorboard --logdir lightning_logs
 ```sh
 python3 infer_webui.py
 ```
+
+# References
+- VITS2
+    - https://arxiv.org/abs/2307.16430
+    - https://github.com/p0p4k/vits2_pytorch/
+    - https://github.com/daniilrobnikov/vits2
+- SAN
+    - https://arxiv.org/abs/2301.12811
+    - https://github.com/sony/bigvsan
+- NSF-HiFi-GAN
+    - https://arxiv.org/abs/1904.12088
+    - https://github.com/vtuber-plan/NSF-HiFiGAN
+- Multi-Resolution STFT Discriminator form UnivNet
+    - https://arxiv.org/abs/2106.07889
+    - https://github.com/rishikksh20/UnivNet-pytorch
