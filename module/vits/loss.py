@@ -37,21 +37,20 @@ def multiscale_stft_loss(x: torch.Tensor, y: torch.Tensor, scales=[128, 256, 512
     return loss / num_scales
 
 
-# SAN Loss + LS-GAN Loss
+# SAN Loss
 def discriminator_adversarial_loss(real_logits, fake_logits, real_dirs, fake_dirs):
     loss = 0.0
     for lr, lf, dr, df,  in zip(real_logits, fake_logits, real_dirs, fake_dirs):
-        real_loss = ((lr - 1.0) ** 2).mean() - dr.mean()
-        fake_loss = ((lf + 1.0) ** 2).mean() + df.mean()
-        loss += F.relu(real_loss) + F.relu(fake_loss)
+        loss_real = (F.softplus(1-lr)**2).mean() + (F.softplus(1-dr)**2).mean()
+        loss_fake = (F.softplus(lf)**2).mean() + (F.softplus(1-dr)**2).mean()
+        loss += loss_real + loss_fake
     return loss
 
 
-# LS-GAN Loss
 def generator_adversarial_loss(fake_logits):
     loss = 0.0
     for dg in fake_logits:
-        fake_loss = ((dg - 1.0) ** 2).mean()
+        fake_loss = (F.softplus(1-dg)**2).mean()
         loss += F.relu(fake_loss)
     return loss
 
