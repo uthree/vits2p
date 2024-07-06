@@ -167,3 +167,4 @@ cython_debug/
 *.pth
 dataset_cache
 weights
+lightning_logs
