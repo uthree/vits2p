@@ -22,6 +22,8 @@ def scan_cache(config):
         "speakers": speakers,
         "phonemes": phonemes,
         "languages": languages,
+        "n_fft": config.preprocess.n_fft,
+        "frame_size": config.preprocess.frame_size
     }
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f)

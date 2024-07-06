@@ -38,13 +38,8 @@ class Preprocessor:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         f0 = estimate_f0(wf.to(device), self.sample_rate, self.frame_size).cpu()
 
-        # STFT
-        window = torch.hann_window(self.n_fft)
-        spec = torch.stft(wf, self.n_fft, self.frame_size, window=window, return_complex=True).abs()[:, :, 1:]
-
         text, text_length, language_id = self.g2p.encode(text, language, self.text_max_length)
         data = {
-            "spec": spec,
             "spec_length": spec_length,
             "text": text,
             "text_length": text_length,

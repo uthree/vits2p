@@ -14,6 +14,8 @@ class VITSDataset(torch.utils.data.Dataset):
         self.audio_paths = []
         self.feature_paths = []
         self.metadata = json.load(open(metadata))
+        self.frame_size = self.metadata["frame_size"]
+        self.n_fft = self.metadata["n_fft"]
 
         for path in self.root.rglob("*.wav"):
             self.audio_paths.append(path)
@@ -22,15 +24,19 @@ class VITSDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         features = torch.load(self.feature_paths[idx])
         wf, _sr = torchaudio.load(self.audio_paths[idx])
-        wf = wf.sum(0)
         spk = self.feature_paths[idx].parent.name
         text = features['text'].squeeze(0)
         sid = self.metadata['speakers'].index(spk)
-        spec = features['spec'].squeeze(0)
+
+        # スペクトログラムを保存するとストレージを圧迫するので、ここでスペクトログラムを計算する。
+        window = torch.hann_window(self.n_fft)
+        spec = torch.stft(wf, self.n_fft, self.frame_size, window=window, return_complex=True).abs()[:, :, 1:].squeeze(0)
+
         spec_length = features['spec_length'].squeeze(0)
         f0 = features['f0'].squeeze(0)
         text_length = features['text_length'].squeeze(0)
         lang_id = features['language_id'].squeeze(0)
+        wf = wf.sum(0)
         return wf, spec, spec_length, f0, text, text_length, sid, lang_id
         
     def __len__(self):
