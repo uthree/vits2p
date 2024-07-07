@@ -42,14 +42,18 @@ if __name__ == "__main__":
     sample_rate = metadata['sample_rate']
 
     @torch.inference_mode()
-    def synthesize(text, speaker, language):
+    def synthesize(text, speaker, language, length_scale, pitch_shift):
         sid = torch.LongTensor([speakers.index(speaker)]).to(device)
         lang_id = torch.LongTensor([languages.index(language)]).to(device)
         text_encoded, text_length, _ = g2p.encode(text, language)
         text_encoded = text_encoded.to(device)
         text_length = text_length.to(device)
         
-        output_wf, attn, y_mask, (z_p_dur, m_p_dur, logs_p_dur), (z_p_audio, m_p_audio, logs_p_audio) = net_g.infer(text_encoded, text_length, sid)
+        output_wf, attn, y_mask, (z_p_dur, m_p_dur, logs_p_dur), (z_p_audio, m_p_audio, logs_p_audio) = net_g.infer(
+            text_encoded, text_length, sid,
+            length_scale=length_scale,
+            pitch_shift=pitch_shift
+        )
         output_wf = output_wf.squeeze(1)
 
         output_wf = output_wf.clamp(-1.0, 1.0)
@@ -63,6 +67,8 @@ if __name__ == "__main__":
             gr.Text(label="Text"),
             gr.Dropdown(label="Speaker", choices=speakers, value=speakers[0]),
             gr.Dropdown(label="Language", choices=languages, value=languages[0]),
+            gr.Slider(label="Length Scale", value=1.0, minimum=0.1, maximum=3.0),
+            gr.Slider(label="Pitch Shift", value=0, minimum=-12, maximum=12)
         ],
         outputs=[
             gr.Audio(label="Output")

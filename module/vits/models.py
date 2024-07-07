@@ -132,7 +132,7 @@ class SynthesizerTrn(nn.Module):
             (m_p_audio, logs_p_audio, m_q_audio, logs_q_audio),
         )
 
-    def infer(self, x, x_lengths, sid=None, noise_scale=1, length_scale=1, use_sdp=False, noise_scale_w=1.0, max_len=None):
+    def infer(self, x, x_lengths, sid=None, noise_scale=1, length_scale=1, use_sdp=False, noise_scale_w=1.0, max_len=None, pitch_shift=0.0):
         if self.n_speakers > 0:
             g = self.emb_g(sid).unsqueeze(-1)  # [b, h, 1]
         else:
@@ -157,7 +157,12 @@ class SynthesizerTrn(nn.Module):
         z_p_dur = m_p_dur + torch.randn_like(m_p_dur) * torch.exp(logs_p_dur) * noise_scale
 
         z_p_audio, m_p_audio, logs_p_audio = self.flow(z_p_dur, m_p_dur, logs_p_dur, y_mask, g=g, reverse=True)
+
         f0, _ = self.pitch_predictor(h_pitch_dur, g=g)
+        pitch = torch.log2(f0 / 440 + 1e-6) * 12.0
+        pitch += pitch_shift
+        f0 = 440 * 2 ** (pitch / 12.0)
+
         o = self.dec((z_p_audio * y_mask)[:, :, :max_len], f0, g=g)
         return o, attn, y_mask, (z_p_dur, m_p_dur, logs_p_dur), (z_p_audio, m_p_audio, logs_p_audio)
 
