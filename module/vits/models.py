@@ -78,7 +78,7 @@ class SynthesizerTrn(nn.Module):
         else:
             g = None
 
-        z_p_text, m_p_text, logs_p_text, h_text, x_mask = self.enc_p(x, x_lengths, g=g)
+        z_p_text, m_p_text, logs_p_text, h_pitch, h_text, x_mask = self.enc_p(x, x_lengths, g=g)
         z_q_audio, m_q_audio, logs_q_audio, y_mask = self.enc_q(y, y_lengths, g=g)
         z_q_dur, m_q_dur, logs_q_dur = self.flow(z_q_audio, m_q_audio, logs_q_audio, y_mask, g=g)
 
@@ -104,10 +104,11 @@ class SynthesizerTrn(nn.Module):
 
         m_p_dur = torch.matmul(attn.squeeze(1), m_p_text.mT).mT
         logs_p_dur = torch.matmul(attn.squeeze(1), logs_p_text.mT).mT
+        h_pitch_dur = torch.matmul(attn.squeeze(1), h_pitch.mT).mT
         z_p_dur = m_p_dur + torch.randn_like(m_p_dur) * torch.exp(logs_p_dur) * y_mask
 
         z_p_audio, m_p_audio, logs_p_audio = self.flow(z_p_dur, m_p_dur, logs_p_dur, y_mask, g=g, reverse=True)
-        _, f0_logits = self.pitch_predictor(z_p_dur, g=g)
+        _, f0_logits = self.pitch_predictor(h_pitch_dur, g=g)
         f0_label = self.pitch_predictor.freq2id(f0).squeeze(1)
 
         slice_range = decide_slice_range(z_q_audio.shape[2], self.segment_size)
@@ -137,7 +138,7 @@ class SynthesizerTrn(nn.Module):
         else:
             g = None
 
-        z_p_text, m_p_text, logs_p_text, h_text, x_mask = self.enc_p(x, x_lengths, g=g)
+        z_p_text, m_p_text, logs_p_text, h_pitch, h_text, x_mask = self.enc_p(x, x_lengths, g=g)
 
         if use_sdp:
             logw = self.sdp(h_text, x_mask, g=g, reverse=True, noise_scale=noise_scale_w)
@@ -152,10 +153,11 @@ class SynthesizerTrn(nn.Module):
 
         m_p_dur = torch.matmul(attn.squeeze(1), m_p_text.mT).mT  # [b, t', t], [b, t, d] -> [b, d, t']
         logs_p_dur = torch.matmul(attn.squeeze(1), logs_p_text.mT).mT  # [b, t', t], [b, t, d] -> [b, d, t']
+        h_pitch_dur = torch.matmul(attn.squeeze(1), h_pitch.mT).mT
         z_p_dur = m_p_dur + torch.randn_like(m_p_dur) * torch.exp(logs_p_dur) * noise_scale
 
         z_p_audio, m_p_audio, logs_p_audio = self.flow(z_p_dur, m_p_dur, logs_p_dur, y_mask, g=g, reverse=True)
-        f0, _ = self.pitch_predictor(z_p_dur, g=g)
+        f0, _ = self.pitch_predictor(h_pitch_dur, g=g)
         o = self.dec((z_p_audio * y_mask)[:, :, :max_len], f0, g=g)
         return o, attn, y_mask, (z_p_dur, m_p_dur, logs_p_dur), (z_p_audio, m_p_audio, logs_p_audio)
 

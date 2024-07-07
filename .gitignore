@@ -168,3 +168,6 @@ cython_debug/
 dataset_cache
 weights
 lightning_logs
+
+module/monotonic_align/core.c
+module/monotonic_align/build/*

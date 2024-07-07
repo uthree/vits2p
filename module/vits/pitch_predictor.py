@@ -29,7 +29,7 @@ class PitchPredictor(nn.Module):
             self,
             inter_channels=192,
             gin_channels=192,
-            num_layers=4,
+            num_layers=8,
             num_classes=512,
             classes_per_octave=48,
             min_frequency=20.0

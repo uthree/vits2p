@@ -58,7 +58,7 @@ class TextEncoder(nn.Module):
             lang_channels=lang_channels,
             speaker_cond_layer=speaker_cond_layer,
         )
-        self.proj = nn.Linear(hidden_channels, out_channels * 2)
+        self.proj = nn.Linear(hidden_channels, out_channels * 3)
 
     def forward(self, x: torch.Tensor, x_lengths: torch.Tensor, g: torch.Tensor = None, lang: torch.Tensor = None):
         """
@@ -72,9 +72,9 @@ class TextEncoder(nn.Module):
         x = self.encoder(x, x_mask, g=g, lang=lang)
         stats = self.proj(x.mT).mT * x_mask
 
-        m, logs = torch.split(stats, self.out_channels, dim=1)
+        m, logs, h_pitch = torch.split(stats, self.out_channels, dim=1)
         z = m + torch.randn_like(m) * torch.exp(logs) * x_mask
-        return z, m, logs, x, x_mask
+        return z, m, logs, h_pitch, x, x_mask
 
 
 # * Ready and Tested

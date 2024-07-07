@@ -52,7 +52,7 @@ class VITS(L.LightningModule):
         opt_d.zero_grad()
         loss_d = discriminator_adversarial_loss(logits_real, logits_fake, dirs_real, dirs_fake)
         loss_d.backward()
-        nn.utils.clip_grad_value_(self.net_d.parameters(), 1.0)
+        nn.utils.clip_grad_norm_(self.net_d.parameters(), 1.0, 2.0)
         opt_d.step()
         self.untoggle_optimizer(opt_d)
 
@@ -62,7 +62,7 @@ class VITS(L.LightningModule):
         dur_logits_fake = self.net_dd(h_text, x_mask, logw_hat.detach(), g)
         loss_dd = duration_discriminator_adversarial_loss(dur_logits_real, dur_logits_fake)
         loss_dd.backward()
-        nn.utils.clip_grad_value_(self.net_dd.parameters(), 1.0)
+        nn.utils.clip_grad_norm_(self.net_dd.parameters(), 1.0, 2.0)
         opt_dd.step()
         self.untoggle_optimizer(opt_dd)
 
@@ -76,12 +76,12 @@ class VITS(L.LightningModule):
         dur_logits_fake = self.net_dd(h_text, x_mask, logw_hat, g)
         loss_dur_adv = duration_generator_adversarial_loss(dur_logits_fake)
 
-        loss_g = loss_stft * 45 + loss_adv + loss_feat + loss_kl_dur + loss_kl_audio + loss_f0 + loss_dp + loss_sdp + loss_dur_adv
+        loss_g = loss_stft * 45.0 + loss_adv + loss_feat + loss_kl_dur + loss_kl_audio + loss_f0 + loss_dp + loss_sdp + loss_dur_adv
 
         self.toggle_optimizer(opt_g)
         opt_g.zero_grad()
         loss_g.backward()
-        nn.utils.clip_grad_value_(self.net_g.parameters(), 1.0)
+        nn.utils.clip_grad_norm_(self.net_g.parameters(), 1.0, 2.0)
         opt_g.step()
         self.untoggle_optimizer(opt_g)
 
