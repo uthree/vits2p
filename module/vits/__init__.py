@@ -72,11 +72,10 @@ class VITS(L.LightningModule):
         loss_f0 = f0_estimation_loss(f0_logits, f0_label)
         
         loss_kl_dur = kl_loss(z_q_dur, logs_q_dur, m_p_dur, logs_p_dur, z_mask)
-        loss_kl_audio = kl_loss_normal(m_p_audio, logs_p_audio, m_q_audio, logs_q_audio, z_mask)
         dur_logits_fake = self.net_dd(h_text, x_mask, logw_hat, g)
         loss_dur_adv = duration_generator_adversarial_loss(dur_logits_fake)
 
-        loss_g = loss_stft * 45.0 + loss_adv + loss_feat + loss_kl_dur + loss_kl_audio + loss_f0 + loss_dp + loss_sdp + loss_dur_adv
+        loss_g = loss_stft * 45.0 + loss_adv + loss_feat + loss_kl_dur + loss_f0 + loss_dp + loss_sdp + loss_dur_adv
 
         self.toggle_optimizer(opt_g)
         opt_g.zero_grad()
@@ -89,7 +88,6 @@ class VITS(L.LightningModule):
         self.log("generator/adversarial", loss_adv.item())
         self.log("generator/feature matching", loss_feat.item())
         self.log("generator/kl_dur", loss_kl_dur.item())
-        self.log("generator/kl_audio", loss_kl_audio.item())
         self.log("generator/pitch prediction", loss_f0.item())
         self.log("generator/stochastic duration predictor", loss_sdp.item())
         self.log("generator/duration predictor", loss_dp.item())
