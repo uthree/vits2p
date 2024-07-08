@@ -31,7 +31,7 @@ class G2PModule:
         '''
         Outputs:
             phoneme_ids: shape=[1, L]
-            length: shape[1]
+            lengths: shape[1]
             language_ids: shape=[1]
         '''
         phonemes = self.grapheme_to_phoneme(text, language)

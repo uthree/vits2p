@@ -101,7 +101,7 @@ class SynthesizerTrn(nn.Module):
         logw = torch.log(w + 1e-6) * x_mask
         logw_hat = self.dp(h_text, x_mask, g=g)
         l_length_dp = torch.sum((logw - logw_hat) ** 2, [1, 2]) / torch.sum(x_mask)  # for averaging
-
+    
         m_p_dur = torch.matmul(attn.squeeze(1), m_p_text.mT).mT
         logs_p_dur = torch.matmul(attn.squeeze(1), logs_p_text.mT).mT
         h_pitch_dur = torch.matmul(attn.squeeze(1), h_pitch.mT).mT
