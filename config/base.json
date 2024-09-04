@@ -61,9 +61,9 @@
                 "num_layers": 4
             },
             "mrd": {
-                "resolutions": [128, 256, 512],
+                "resolutions": [60, 120, 240],
                 "channels": 32,
-                "num_layers": 6
+                "num_layers": 4
             }
         },
         "duration_discriminator": {

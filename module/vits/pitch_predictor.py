@@ -47,7 +47,7 @@ class PitchPredictor(nn.Module):
 
     # spec: [BatchSize, fft_bin, Length]
     def forward(self, x, g=None):
-        x = x
+        x = x.detach()
         if g is not None:
             x = x + self.g_in(g)
         for layer in self.layers:
